@@ -1,11 +1,15 @@
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced. * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * The content below * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * ->
+<!-- * * * * * * * * * * and can be replaced. * * * * * * * * * *  * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * Delete the template below * * * * * * * * * * -->
 <!-- * * * * * * * to get started with your project! * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
 
 <style>
   :host {
@@ -302,6 +306,17 @@
   }
 </style>
 
+
+<div>
+  This is a div
+</div>
+
+
+
+
+
+
+
 <!-- Toolbar -->
 <div class="toolbar" role="banner">
   <img
@@ -352,7 +367,206 @@
 
   <!-- Resources -->
   <h2>Resources</h2>
+ 
   <p>Here are some links to help you get started:</p>
+
+
+  <!-- Resources 
+
+  <div>
+    {{appState$ | async | json}}
+  </div>
+
+  -->
+
+  <div class="container-x1">
+    <div class="table-responsive">
+
+      <div class="table-wrapper">
+        <div class="table-title">
+          <div class="row">
+      
+            <div class="col-sm-3">
+              <h5>Manage Servers</h5>
+            </div>
+          
+            <div class="col-sm-9">
+              <button type="button" (click)="printReport()" class="btn btn-primary btn-sm">Print report</button>
+              
+                <button class="btn btn-sm btn-outline-primary" (click)="open(content)">New Server</button>
+          
+                <span>
+                  <select #statusString (change)="filterServers(statusString.value)" ngModel="ALL" name="status" class="btn btn-info btn-sm" 
+                  style="margin-left: 2px;">
+                    <option value="ALL">ALL</option>
+                    <option value="SERVER_UP">SERVER UP</option>
+                    <option value="SERVER_DOWN">SERVER DOWN</option>
+                  </select>
+                </span>
+            </div>
+          </div>
+        </div> <br>
+
+        <ng-container *ngIf="(appState$ | async ) as appState" [ngSwitch]="appState.dataState">
+          <ng-container *ngSwitchCase="DataState.LOADING_STATE">
+            <div class="col-md-12 single-note-item text-center" id="servers">
+              <div class="spinner-border text-info" role="status"></div>
+            </div>
+          </ng-container>
+        <ng-container *ngSwitchCase="DataState.LOADED_STATE">
+
+          <table class="table table-striped table-hover" id="servers">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Ip Sddress</th>
+                <th>Name</th>
+                <th>Memory</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Ping</th>
+                <th>Action</th>
+
+              </tr>
+            </thead>
+            <tbody *ngFor="let server of appState.appData.data.servers; let i = index">
+              <tr>
+                <td> {{i+1}} </td>
+                <td> <img src="" width="40" height="40"> </td>
+                <td>{{server.ipAddress}}</td>
+                <td>{{server.name}}</td>
+                <td>{{server.memory}}</td>
+                <td>{{server.type}}</td>
+                <td>
+                  <span class="badge" [ngClass]="[server.status === Status.SERVER_UP? ' bg-success' : ' bg-danger']">
+                    
+                    {{server.status === Status.SERVER_UP? ' SERVER UP' : ' SERVER DOWN' }}
+                  </span>
+                </td>
+                <td>
+                  <a (click)="pingServer(server.ipAddress)" style="cursor: pointer;">
+                    <i *ngIf="(filterStatus$ | async) === '' || (filterStatus$ | async) !== server.ipAddress"
+                    class="material-icons" title="Ping server">&#xe328;</i>
+                    <i *ngIf="(filterStatus$ | async) === server.ipAddress"
+                    class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+                    <span *ngIf="(filterStatus$ | async) === server.ipAddress"
+                     class="spinner-border text-info" role="status"></span>
+                     <fa-icon [icon]="faCoffee"></fa-icon>
+                    
+
+                  </a>
+                </td>
+                <td>
+                  <a class="delete" data-toggle="modal" (click)="deleteServer(server)" 
+                      style="cursor: pointer;">
+                      <i class="material-icons" style="color: red; font-size: 20px;">delete</i>
+
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+        <ng-container>
+          <div class="alert alert-danger" *ngSwitchCase="DataState.ERROR_STATE">
+            {{ appState.error }}
+          </div>
+        </ng-container>
+        </ng-container>
+        
+      </div>
+    </div>
+
+    <!-- Add server modal -->
+    <ng-template #content let-modal>
+      <!-- 
+         <div id="addEmployeeModal" class="modal fade">
+      -->
+     
+
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="modal-basic-title">Add Server</h4>
+              <!--
+                <button type="button" class="close" data-dismiss="modal" aria-hiden="true">&times;</button>
+              -->
+              
+              <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+            </div>
+            <form #serverForm="ngForm" (ngSubmit)="saveServer(serverForm)">
+              
+              <div class="modal-body">
+                <div class="form-group">
+                  <label>IP</label>
+                  <input type="text" ngModel name="ipAddress" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label>Name</label>
+                  <input type="text"  ngModel  name="name" class="form-control" required>
+                </div>
+                <div class="row">
+                  <div class="col-x1-6 col-lg-6 col-md-6 col-sm-6 col-6">
+                    <div class="form-group">
+                      <label>Memory</label>
+                      <input type="text"  ngModel  name="memory" class="form-control" required>
+                    </div>
+                  </div>
+                  <div class="col-x1-6 col-lg-6 col-md-6 col-sm-6 col-6">
+                    <div class="form-group">ar
+                      <label>Type</label>
+                      <input type="text"  ngModel  name="type" class="form-control" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Status</label>
+                  <select name="status" ngModel="SERVER_DOWN" class="form-control" name="status" required>
+                    <option value="SERVER_UP">SERVER UP</option>
+                    <option value="SERVER_DOWN">SERVER DOWN</option>
+                  </select>
+                </div>
+              </div>
+              <div class="model-footer">
+                <button type="button" class="btn btn-warning" id="closeModal" (click)="modal.dismiss('Cancelled')">
+                  Cancel
+                </button>
+                <button type="submit" [disabled]="serverForm.invalid || (isLoading$ | async)"
+                  class="btn btn-warning">
+                  <span *ngIf="isLoading$ | async"
+                       class="spinner-border text-info" role="status"></span>
+                  <span *ngIf="isLoading$ | async">Saving...</span>
+                  <span *ngIf="!(isLoading$ | async)">Add</span>
+                </button>
+  
+              </div>
+            </form>
+  
+          </div>
+          
+  
+        </div>
+        <!--
+           </div>
+           <notifier-container></notifier-container>
+        -->
+     
+        
+    </ng-template>
+    
+  </div>
+  <notifier-container></notifier-container>
+ 
+
+
+  
+  
+  
+  
+
+
+
 
   <div class="card-container">
     <a class="card" target="_blank" rel="noopener" href="https://angular.io/tutorial">
